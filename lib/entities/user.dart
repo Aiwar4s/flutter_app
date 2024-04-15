@@ -1,11 +1,13 @@
 class User{
+  final String id;
   final String username;
   final String email;
   final UserRole role;
 
-  User(this.email, this.username, this.role);
+  User(this.id, this.email, this.username, this.role);
 
   Map<String, dynamic> toJson() => {
+    'id': id,
     'username': username,
     'email': email,
     'role': role.toString().split('.').last
@@ -13,9 +15,10 @@ class User{
 
   factory User.fromJson(Map<String, dynamic> json){
     return User(
+      json['id'],
       json['email'],
       json['username'],
-      json['role'] == 'admin' ? UserRole.admin : UserRole.user
+      json['role'] == null ? UserRole.user : json['role'] == 'admin' ? UserRole.admin : UserRole.user
     );
   }
 }

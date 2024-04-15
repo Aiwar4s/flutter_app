@@ -64,4 +64,8 @@ class AuthService {
     await SecureStorageService().writeRefreshToken(refreshToken);
     await SecureStorageService().writeUserInfo(user);
   }
+
+  static Future<bool> isLoggedIn() async {
+    return await SecureStorageService().readAccessToken() != null;
+  }
 }

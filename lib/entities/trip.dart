@@ -1,4 +1,5 @@
 import 'package:flutter_app/entities/user.dart';
+import 'package:flutter_app/entities/user_trip.dart';
 
 class Trip {
   final int id;
@@ -10,6 +11,7 @@ class Trip {
   final int seatsTaken;
   final num price;
   User? user;
+  List<UserTrip>? userTrips;
 
   Trip({
     required this.id,
@@ -20,6 +22,8 @@ class Trip {
     required this.seats,
     required this.seatsTaken,
     required this.price,
+    this.user,
+    this.userTrips,
   });
 
   factory Trip.fromJson(Map<String, dynamic> json) {
@@ -32,6 +36,10 @@ class Trip {
       seats: json['seats'],
       seatsTaken: json['seatsTaken'],
       price: json['price'],
+      user: json['user'] != null ? User.fromJson(json['user']) : null,
+      userTrips: json['userTrips'] != null
+          ? List<UserTrip>.from(json['userTrips'].map((trip) => UserTrip.fromJson(trip)))
+          : null,
     );
   }
 

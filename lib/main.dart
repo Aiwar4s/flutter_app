@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_app/providers/city_provider.dart';
 import 'package:flutter_app/providers/user_provider.dart';
 import 'package:flutter_app/screens/home_screen.dart';
+import 'package:flutter_app/theme.dart';
 import 'package:provider/provider.dart';
 
 void main() {
@@ -31,11 +32,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'AngularApp',
-      theme: ThemeData(
-        colorSchemeSeed: Colors.blue,
-        brightness: Brightness.dark,
-        useMaterial3: true,
-      ),
+      theme: darkTheme,
       home: const HomeScreen(),
     );
   }
