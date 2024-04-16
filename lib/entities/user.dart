@@ -21,6 +21,8 @@ class User{
       json['role'] == null ? UserRole.user : json['role'] == 'admin' ? UserRole.admin : UserRole.user
     );
   }
+
+  bool get isAdmin => role == UserRole.admin;
 }
 
 enum UserRole{

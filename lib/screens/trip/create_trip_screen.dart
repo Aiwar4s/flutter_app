@@ -97,7 +97,7 @@ class _CreateTripScreenState extends State<CreateTripScreen> {
                     const SizedBox(height: 10),
                     Row(
                       children: [
-                        const Text('Departure Date and Time: '),
+                        const Text('Date and Time: '),
                         Expanded(
                             child: ElevatedButton(
                               style: ElevatedButton.styleFrom(

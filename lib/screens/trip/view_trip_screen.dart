@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_app/Entities/Trip.dart';
 import 'package:flutter_app/providers/user_provider.dart';
 import 'package:flutter_app/screens/trip/trip_chat_screen.dart';
+import 'package:flutter_app/widgets/confirm_delete_dialog.dart';
 import 'package:flutter_app/widgets/custom_app_bar.dart';
 import 'package:flutter_app/widgets/seat_picker_dialog.dart';
 import 'package:intl/intl.dart';
@@ -95,7 +96,24 @@ class _ViewTripScreenState extends State<ViewTripScreen> {
                           title: const Text('Description:'),
                           subtitle: Text(trip!.description)),
                     ),
-                    if(loggedIn && (trip!.userTrips!.any((userTrip) => userTrip.userId == user.id) || trip!.user!.id == user.id))
+                    Card(
+                      child: Column(
+                        children: [
+                          const ListTile(
+                            leading: Icon(Icons.group),
+                            title: Text('Joined Users:'),
+                          ),
+                          ...trip!.userTrips!.map((userTrip){
+                            return ListTile(
+                              leading: const Icon(Icons.person),
+                              title: Text(userTrip.user.username),
+                              subtitle: Text('Seats: ${userTrip.seats}'),
+                            );
+                          })
+                        ]
+                      )
+                    ),
+                    if(loggedIn && (trip!.userTrips!.any((userTrip) => userTrip.user.id == user.id) || trip!.user!.id == user.id))
                       ElevatedButton.icon(
                           onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => TripChatScreen(tripId: trip!.id))),
                           icon: const Icon(Icons.chat),
@@ -104,7 +122,7 @@ class _ViewTripScreenState extends State<ViewTripScreen> {
                   ],
                 )
               ),
-              if(loggedIn && trip != null && trip!.seatsTaken < trip!.seats && !trip!.userTrips!.any((userTrip) => userTrip.userId == user.id) && trip!.user!.id != user.id)
+              if(loggedIn && trip != null && trip!.seatsTaken < trip!.seats && !trip!.userTrips!.any((userTrip) => userTrip.user.id == user.id) && trip!.user!.id != user.id)
                 ElevatedButton.icon(
                   onPressed: (){
                     showSeatPickerDialog(context, trip!.seats - trip!.seatsTaken).then((seats){
@@ -116,7 +134,7 @@ class _ViewTripScreenState extends State<ViewTripScreen> {
                   icon: const Icon(Icons.person_add),
                   label: const Text('Join Trip'),
                 ),
-              if(loggedIn && trip!.userTrips!.any((userTrip) => userTrip.userId == user.id))
+              if(loggedIn && trip!.userTrips!.any((userTrip) => userTrip.user.id == user.id))
                 ElevatedButton.icon(
                   onPressed: (){
                     _leaveTrip();
@@ -126,6 +144,32 @@ class _ViewTripScreenState extends State<ViewTripScreen> {
                   ),
                   icon: const Icon(Icons.person_remove),
                   label: const Text('Leave Trip'),
+                ),
+              if(loggedIn && trip!.user!.id == user.id)
+                ElevatedButton.icon(
+                  onPressed: (){
+                    // TODO: Implement edit trip
+                  },
+                  icon: const Icon(Icons.edit),
+                  label: const Text('Edit Trip'),
+                ),
+              if(loggedIn && (trip!.user!.id == user.id || user.isAdmin))
+                ElevatedButton.icon(
+                  onPressed: (){
+                    showDialog(context: context, builder: (BuildContext context) {
+                      return ConfirmDeleteDialog(
+                          onDelete: (){
+                            _deleteTrip();
+                            Navigator.of(context).pop();
+                          },
+                          type: 'trip');
+                    });
+                  },
+                  style: ButtonStyle(
+                    backgroundColor: MaterialStateProperty.all(Colors.red.withOpacity(0.7)),
+                  ),
+                  icon: const Icon(Icons.delete),
+                  label: const Text('Delete Trip'),
                 )
             ],
           )
@@ -178,6 +222,20 @@ class _ViewTripScreenState extends State<ViewTripScreen> {
       }).catchError((e){
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.toString())));
         Navigator.pop(context);
+      });
+    });
+  }
+
+  _deleteTrip(){
+    setState(() {
+      _isLoading = true;
+    });
+    TripService().deleteTrip(trip!.id).then((value) {
+      Navigator.pop(context, 'refresh');
+    }).catchError((e){
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.toString())));
+      setState(() {
+        _isLoading = false;
       });
     });
   }

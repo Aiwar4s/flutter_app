@@ -6,8 +6,9 @@ import '../screens/trip/view_trip_screen.dart';
 
 class TripTile extends StatelessWidget{
   final Trip trip;
+  final VoidCallback onRefresh;
 
-  const TripTile({super.key, required this.trip});
+  const TripTile({super.key, required this.trip, required this.onRefresh});
 
   @override
   Widget build(BuildContext context){
@@ -20,8 +21,11 @@ class TripTile extends StatelessWidget{
         borderRadius: BorderRadius.circular(8.0),
       ),
       child: ListTile(
-          onTap: () {
-            Navigator.push(context, MaterialPageRoute(builder: (context) => ViewTripScreen(tripId: trip.id)));
+          onTap: () async {
+            final result = await Navigator.push(context, MaterialPageRoute(builder: (context) => ViewTripScreen(tripId: trip.id)));
+            if(result == 'refresh'){
+              onRefresh();
+            }
           },
           title: Text('${trip.departure} - ${trip.destination}'),
           subtitle: Text("Price: ${trip.price}€, Seats left: ${trip.seats-trip.seatsTaken}\nDate: ${DateFormat("yyyy-MM-dd hh:mm").format(trip.date)}"),

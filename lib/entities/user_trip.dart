@@ -1,14 +1,16 @@
+import 'package:flutter_app/entities/user.dart';
+
 class UserTrip{
   final int id;
   final int seats;
   final int tripId;
-  final String userId;
+  final User user;
 
   UserTrip({
     required this.id,
     required this.seats,
     required this.tripId,
-    required this.userId,
+    required this.user,
   });
 
   factory UserTrip.fromJson(Map<String, dynamic> json){
@@ -16,7 +18,7 @@ class UserTrip{
       id: json['id'],
       seats: json['seats'],
       tripId: json['tripId'],
-      userId: json['userId'],
+      user: User.fromJson(json['user']),
     );
   }
 }

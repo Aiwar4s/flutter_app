@@ -75,14 +75,14 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver{
                         if(snapshot.connectionState == ConnectionState.waiting){
                           return const Center(child: CircularProgressIndicator());
                         } else if(snapshot.hasError){
-                          return Center(child: Text('Error: ${snapshot.error}'));
+                          return const Center(child: Text('Error: Failed to load trips'));
                         } else {
                           trips= snapshot.data!;
                           return ListView.builder(
                               itemCount: trips.length,
                               itemBuilder: (context, index){
                                 final trip = trips[index];
-                                return TripTile(trip: trip);
+                                return TripTile(trip: trip, onRefresh: _refreshTrips);
                               }
                           );
                         }

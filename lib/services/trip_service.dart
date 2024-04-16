@@ -8,6 +8,7 @@ import 'auth/secure_storage_service.dart';
 
 class TripService {
   Map<String, String> headers = {'Content-Type': 'application/json; charset=UTF-8'};
+
   Future<List<Trip>> getTrips() async{
     if(await AuthService.isLoggedIn()){
       AuthService().refreshToken();
@@ -87,6 +88,21 @@ class TripService {
     }
     else{
       throw Exception("Failed to leave trip");
+    }
+  }
+
+  Future<void> deleteTrip(int id) async{
+    AuthService().refreshToken();
+    final accessToken = await SecureStorageService().readAccessToken();
+    final response = await http.delete(
+      Uri.parse('${ApiConstants.trips}/$id'),
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+        'Authorization': 'Bearer $accessToken'
+      },
+    );
+    if(response.statusCode != 204){
+      throw Exception("Failed to delete trip");
     }
   }
 }
