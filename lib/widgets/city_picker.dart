@@ -7,8 +7,9 @@ import '../services/city_search.dart';
 class CityPicker extends StatefulWidget{
   final Function(String) onCitySelected;
   final Function(bool) onValidated;
+  final String excludedCity;
 
-  const CityPicker({super.key, required this.onCitySelected, required this.onValidated});
+  const CityPicker({super.key, required this.onCitySelected, required this.onValidated, required this.excludedCity});
 
   @override
   _CityPickerState createState() => _CityPickerState();
@@ -28,6 +29,9 @@ class _CityPickerState extends State<CityPicker>{
   @override
   Widget build(BuildContext context){
     List<String> cities = Provider.of<CityProvider>(context).cities;
+    if (widget.excludedCity != '') {
+      cities = cities.where((city) => city != widget.excludedCity).toList();
+    }
 
     return Form(
       child: Column(

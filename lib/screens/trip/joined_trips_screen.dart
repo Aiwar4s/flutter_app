@@ -2,19 +2,18 @@ import 'package:flutter/material.dart';
 import 'package:flutter_app/Entities/Trip.dart';
 import 'package:flutter_app/providers/user_provider.dart';
 import 'package:flutter_app/screens/base_screen.dart';
-import 'package:flutter_app/screens/trip/create_trip_screen.dart';
 import 'package:flutter_app/services/trip_service.dart';
 import 'package:flutter_app/widgets/trip_list_tile.dart';
 import 'package:provider/provider.dart';
 
-class HomeScreen extends StatefulWidget{
-  const HomeScreen({super.key});
+class JoinedTripsScreen extends StatefulWidget{
+  const JoinedTripsScreen({super.key});
 
   @override
-  _HomeScreenState createState() => _HomeScreenState();
+  _JoinedTripsScreenState createState() => _JoinedTripsScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver{
+class _JoinedTripsScreenState extends State<JoinedTripsScreen> with WidgetsBindingObserver{
   List<Trip> trips = [];
 
   @override
@@ -37,7 +36,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver{
   }
 
   Future<void> _refreshTrips() async{
-    var newTrips = await TripService().getTrips();
+    var newTrips = await TripService().getJoinedTrips();
     setState(() {
       trips = newTrips;
     });
@@ -47,21 +46,11 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver{
   Widget build(BuildContext context){
     final loggedIn = Provider.of<UserProvider>(context).user != null;
     return BaseScreen(
-        title: 'Trips',
+        title: 'Joined Trips',
         loggedIn: loggedIn,
         child: Consumer<UserProvider>(
             builder: (context, userProvider, child){
               return Scaffold(
-                floatingActionButton: loggedIn ? FloatingActionButton(
-                  shape: const CircleBorder(),
-                  onPressed: () async{
-                    final result = await Navigator.push(context, MaterialPageRoute(builder: (context) => CreateTripScreen()));
-                    if(result == 'refresh'){
-                      _refreshTrips();
-                    }
-                  },
-                  child: const Icon(Icons.add),
-                ) : null,
                 body: Padding(
                     padding: const EdgeInsets.all(5.0),
                     child: RefreshIndicator(
@@ -69,7 +58,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver{
                           await _refreshTrips();
                         },
                         child: FutureBuilder<List<Trip>>(
-                            future: TripService().getTrips(),
+                            future: TripService().getJoinedTrips(),
                             builder: (context, snapshot){
                               if(snapshot.connectionState == ConnectionState.waiting){
                                 return const Center(child: CircularProgressIndicator());

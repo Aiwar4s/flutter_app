@@ -25,6 +25,44 @@ class TripService {
     }
   }
 
+  Future<List<Trip>> getJoinedTrips() async{
+    AuthService().refreshToken();
+    final accessToken = await SecureStorageService().readAccessToken();
+    final response = await http.get(
+        Uri.parse('${ApiConstants.trips}/joined'),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+          'Authorization': 'Bearer $accessToken'
+        }
+    );
+    if(response.statusCode == 200){
+      List<dynamic> body = jsonDecode(response.body);
+      return body.map((trip) => Trip.fromJson(trip)).toList();
+    }
+    else{
+      throw Exception("Failed to load joined trips");
+    }
+  }
+
+  Future<List<Trip>> getCreatedTrips() async{
+    AuthService().refreshToken();
+    final accessToken = await SecureStorageService().readAccessToken();
+    final response = await http.get(
+        Uri.parse('${ApiConstants.trips}/created'),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+          'Authorization': 'Bearer $accessToken'
+        }
+    );
+    if(response.statusCode == 200){
+      List<dynamic> body = jsonDecode(response.body);
+      return body.map((trip) => Trip.fromJson(trip)).toList();
+    }
+    else{
+      throw Exception("Failed to load created trips");
+    }
+  }
+
   Future<Trip> getTrip(int id) async{
     final response = await http.get(Uri.parse('${ApiConstants.trips}/$id'));
     if(response.statusCode == 200){

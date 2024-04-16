@@ -5,6 +5,10 @@ class CitySearch extends SearchDelegate<String>{
 
   CitySearch(this.cities);
 
+  bool _isValidCity(String city){
+    return cities.contains(city);
+  }
+
   @override
   List<Widget> buildActions(BuildContext context) {
     return [
@@ -29,10 +33,16 @@ class CitySearch extends SearchDelegate<String>{
 
   @override
   Widget buildResults(BuildContext context) {
-    return ListTile(
-      title: Text(query),
-      onTap: (){close(context, query);},
-    );
+    if(_isValidCity(query)){
+      return ListTile(
+        title: Text(query),
+        onTap: (){close(context, query);},
+      );
+    } else {
+      return const ListTile(
+        title: Text('No results found'),
+      );
+    }
   }
 
   @override

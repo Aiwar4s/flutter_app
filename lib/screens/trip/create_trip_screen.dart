@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_app/providers/city_provider.dart';
 import 'package:flutter_app/providers/user_provider.dart';
+import 'package:flutter_app/screens/base_screen.dart';
 import 'package:flutter_app/widgets/city_picker.dart';
 import 'package:flutter_app/widgets/custom_app_bar.dart';
 import 'package:omni_datetime_picker/omni_datetime_picker.dart';
@@ -53,154 +54,157 @@ class _CreateTripScreenState extends State<CreateTripScreen> {
         decimalDigits: 0
     );
 
-    return Scaffold(
-        appBar: CustomAppBar(title: 'New Trip', loggedIn: Provider
-            .of<UserProvider>(context)
-            .user != null),
-        body: Padding(
-          padding: const EdgeInsets.all(20.0),
-          child: _isLoading
-              ? const Center(child: CircularProgressIndicator())
-              : Form(
-              key: _formKey,
-              child: Column(
-                  children: [
-                    const Align(
-                      alignment: Alignment.centerLeft,
-                      child: Text('Departure City:')
-                    ),
-                    CityPicker(
-                        onCitySelected: (city) {
-                          setState(() {
-                            departureCity = city;
-                          });
-                        },
-                      onValidated: (isValid){
-                          isFieldValid[0] = isValid;
-                      }
-                    ),
-                    const SizedBox(height: 10),
-                    const Align(
-                      alignment: Alignment.centerLeft,
-                      child: Text('Destination City:')
-                    ),
-                    CityPicker(
-                        onCitySelected: (city) {
-                          setState(() {
-                            destinationCity = city;
-                          });
-                        },
-                      onValidated: (isValid) {
-                        isFieldValid[1] = isValid;
-                      }
-                    ),
-                    const SizedBox(height: 10),
-                    Row(
+    return BaseScreen(
+        title: 'New Trip',
+        loggedIn: Provider.of<UserProvider>(context).user != null,
+        child: Scaffold(
+            body: Padding(
+              padding: const EdgeInsets.all(20.0),
+              child: _isLoading
+                  ? const Center(child: CircularProgressIndicator())
+                  : Form(
+                  key: _formKey,
+                  child: Column(
                       children: [
-                        const Text('Date and Time: '),
-                        Expanded(
-                            child: ElevatedButton(
-                              style: ElevatedButton.styleFrom(
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(5),
-                                ),
-                                foregroundColor: Colors.black,
-                                backgroundColor: Colors.white,
-                                shadowColor: Colors.grey,
-                              ),
-                              onPressed: () {
-                                _selectDateTime(context);
-                              },
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Align(
-                                      alignment: Alignment.centerLeft,
-                                      child: Text(
-                                        '${selectedDateTime.year}-${selectedDateTime.month}-${selectedDateTime.day} ${selectedDateTime.hour}:${selectedDateTime.minute}',
-                                        style: const TextStyle(color: Colors.black),
-                                      )
+                        const Align(
+                            alignment: Alignment.centerLeft,
+                            child: Text('Departure City:')
+                        ),
+                        CityPicker(
+                            onCitySelected: (city) {
+                              setState(() {
+                                departureCity = city;
+                              });
+                            },
+                            onValidated: (isValid){
+                              isFieldValid[0] = isValid;
+                            },
+                            excludedCity: destinationCity
+                        ),
+                        const SizedBox(height: 10),
+                        const Align(
+                            alignment: Alignment.centerLeft,
+                            child: Text('Destination City:')
+                        ),
+                        CityPicker(
+                            onCitySelected: (city) {
+                              setState(() {
+                                destinationCity = city;
+                              });
+                            },
+                            onValidated: (isValid) {
+                              isFieldValid[1] = isValid;
+                            },
+                            excludedCity: departureCity
+                        ),
+                        const SizedBox(height: 10),
+                        Row(
+                          children: [
+                            const Text('Date and Time: '),
+                            Expanded(
+                              child: ElevatedButton(
+                                style: ElevatedButton.styleFrom(
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(5),
                                   ),
-                                  const Icon(Icons.arrow_drop_down),
-                                ],
+                                  foregroundColor: Colors.black,
+                                  backgroundColor: Colors.white,
+                                  shadowColor: Colors.grey,
+                                ),
+                                onPressed: () {
+                                  _selectDateTime(context);
+                                },
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Align(
+                                        alignment: Alignment.centerLeft,
+                                        child: Text(
+                                          '${selectedDateTime.year}-${selectedDateTime.month}-${selectedDateTime.day} ${selectedDateTime.hour}:${selectedDateTime.minute}',
+                                          style: const TextStyle(color: Colors.black),
+                                        )
+                                    ),
+                                    const Icon(Icons.arrow_drop_down),
+                                  ],
+                                ),
                               ),
                             ),
+                          ],
                         ),
-                      ],
-                    ),
-                    const SizedBox(height: 10),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Expanded(
-                            child: TextFormField(
-                              decoration: const InputDecoration(
-                                labelText: 'Price',
+                        const SizedBox(height: 10),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Expanded(
+                              child: TextFormField(
+                                  decoration: const InputDecoration(
+                                    labelText: 'Price',
+                                  ),
+                                  initialValue: '0 EUR',
+                                  keyboardType: TextInputType.number,
+                                  inputFormatters: <TextInputFormatter>[_priceFormatter],
+                                  validator: (value) {
+                                    if (value == null || value.isEmpty) {
+                                      return 'Please enter a price';
+                                    }
+                                    return null;
+                                  },
+                                  onChanged: (value) {
+                                    price = _priceFormatter.getUnformattedValue();
+                                    print(price);
+                                  }
                               ),
-                              initialValue: '0 EUR',
-                              keyboardType: TextInputType.number,
-                              inputFormatters: <TextInputFormatter>[_priceFormatter],
-                              validator: (value) {
-                                if (value == null || value.isEmpty) {
-                                  return 'Please enter a price';
-                                }
-                                return null;
-                              },
-                              onChanged: (value) {
-                                price = _priceFormatter.getUnformattedValue();
-                                print(price);
+                            ),
+                            Expanded(
+                              child: DropdownButtonFormField(
+                                decoration: const InputDecoration(
+                                  labelText: 'Seats',
+                                ),
+                                value: seats,
+                                items: List<int>.generate(10, (i) => (i+1)).map((int value) {
+                                  return DropdownMenuItem(
+                                    value: value,
+                                    child: Text(value.toString()),
+                                  );
+                                }).toList(),
+                                onChanged: (value) {
+                                  setState(() {
+                                    seats=value as int;
+                                  });
+                                },
+                                validator: (value) {
+                                  if (value == null) {
+                                    return 'Please enter the number of seats';
+                                  }
+                                  return null;
+                                },
+                              ),
+                            )
+                          ],
+                        ),
+                        const SizedBox(height: 10),
+                        TextFormField(
+                          decoration: const InputDecoration(
+                            labelText: 'Description',
+                          ),
+                          maxLines: 3,
+                          onChanged: (value) {
+                            description = value;
+                          },
+                        ),
+                        const SizedBox(height: 10),
+                        ElevatedButton(
+                            onPressed: isFieldValid.contains(false) ? null : (){
+                              if(_formKey.currentState!.validate()){
+                                _createTrip();
                               }
-                            ),
-                        ),
-                        Expanded(
-                            child: DropdownButtonFormField(
-                              decoration: const InputDecoration(
-                                labelText: 'Seats',
-                              ),
-                              value: seats,
-                              items: List<int>.generate(10, (i) => (i+1)).map((int value) {
-                                return DropdownMenuItem(
-                                  value: value,
-                                  child: Text(value.toString()),
-                                );
-                              }).toList(),
-                              onChanged: (value) {
-                                setState(() {
-                                  seats=value as int;
-                                });
-                              },
-                              validator: (value) {
-                                if (value == null) {
-                                  return 'Please enter the number of seats';
-                                }
-                                return null;
-                              },
-                            ),
+                            },
+                            child: const Text('Create Trip')
                         )
-                      ],
-                    ),
-                    const SizedBox(height: 10),
-                    TextFormField(
-                      decoration: const InputDecoration(
-                        labelText: 'Description',
-                      ),
-                      maxLines: 3,
-                      onChanged: (value) {
-                        description = value;
-                      },
-                    ),
-                    const SizedBox(height: 10),
-                    ElevatedButton(
-                        onPressed: isFieldValid.contains(false) ? null : (){
-                          if(_formKey.currentState!.validate()){
-                            _createTrip();
-                          }
-                        },
-                        child: const Text('Create Trip')
-                    )
-                  ]
-              )
-          ),
+                      ]
+                  )
+              ),
+            )
         )
     );
   }
