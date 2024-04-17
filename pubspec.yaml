@@ -53,6 +53,7 @@ dependencies:
   currency_text_input_formatter: ^2.1.11
   numberpicker: ^2.1.2
   signalr_netcore: ^1.3.7
+  flutter_rating_bar: ^4.0.1
 
 dev_dependencies:
   flutter_test:

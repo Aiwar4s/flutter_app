@@ -55,7 +55,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver{
                 floatingActionButton: loggedIn ? FloatingActionButton(
                   shape: const CircleBorder(),
                   onPressed: () async{
-                    final result = await Navigator.push(context, MaterialPageRoute(builder: (context) => CreateTripScreen()));
+                    final result = await Navigator.push(context, MaterialPageRoute(builder: (context) => const CreateTripScreen()));
                     if(result == 'refresh'){
                       _refreshTrips();
                     }

@@ -1,11 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_app/screens/home_screen.dart';
-import 'package:flutter_app/services/auth/auth_service.dart';
-import 'package:provider/provider.dart';
 
-import '../providers/user_provider.dart';
-import '../screens/auth/login_screen.dart';
-import '../screens/auth/register_screen.dart';
 
 class CustomAppBar extends StatelessWidget implements PreferredSizeWidget{
   final String title;

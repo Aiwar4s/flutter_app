@@ -3,14 +3,16 @@ class User{
   final String username;
   final String email;
   final UserRole role;
+  final num? averageRating;
 
-  User(this.id, this.email, this.username, this.role);
+  User(this.id, this.email, this.username, this.role, this.averageRating);
 
   Map<String, dynamic> toJson() => {
     'id': id,
     'username': username,
     'email': email,
-    'role': role.toString().split('.').last
+    'role': role.toString().split('.').last,
+    'averageRating': averageRating
   };
 
   factory User.fromJson(Map<String, dynamic> json){
@@ -18,7 +20,8 @@ class User{
       json['id'],
       json['email'],
       json['username'],
-      json['role'] == null ? UserRole.user : json['role'] == 'admin' ? UserRole.admin : UserRole.user
+      json['role'] == null ? UserRole.user : json['role'] == 'admin' ? UserRole.admin : UserRole.user,
+      json['averageRating'] ?? 0.0
     );
   }
 

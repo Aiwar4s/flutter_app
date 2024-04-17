@@ -1,12 +1,18 @@
+import 'package:flutter_app/entities/user.dart';
+
 class Rating{
   final int id;
-  final int stars;
-  final String comment;
+  int stars;
+  String comment;
+  final User user;
+  final User ratedUser;
 
-  const Rating({
+  Rating({
     required this.id,
     required this.stars,
     required this.comment,
+    required this.user,
+    required this.ratedUser,
   });
 
   factory Rating.fromJson(Map<String, dynamic> json) {
@@ -14,12 +20,13 @@ class Rating{
       id: json['id'],
       stars: json['stars'],
       comment: json['comment'],
+      user: User.fromJson(json['user']),
+      ratedUser: User.fromJson(json['ratedUser']),
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
-      'id': id,
       'stars': stars,
       'comment': comment,
     };

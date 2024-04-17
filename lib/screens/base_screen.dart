@@ -18,7 +18,8 @@ class BaseScreen extends StatelessWidget {
 
     return Scaffold(
       appBar: CustomAppBar(title: title, loggedIn: loggedIn),
-      drawer: CustomDrawer(loggedIn: loggedIn, isAdmin: isAdmin), // replace with actual values
+      drawer: CustomDrawer(loggedIn: loggedIn, isAdmin: isAdmin),
+      drawerEdgeDragWidth: MediaQuery.of(context).size.width * 0.75,
       body: child,
     );
   }

@@ -6,5 +6,5 @@ class ApiConstants {
 
   static const String auth = "$apiUrl/auth";
   static const String trips = "$apiUrl/trips";
-  static const String ratings = "/ratings";
+  static const String ratings = "$apiUrl/ratings";
 }

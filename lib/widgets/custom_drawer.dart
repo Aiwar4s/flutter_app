@@ -20,20 +20,16 @@ class CustomDrawer extends StatelessWidget {
     return Drawer(
       child: ListView(
         children: [
-          DrawerHeader(
-            child: Text('Drawer Header'),
-            decoration: BoxDecoration(
-              color: Theme.of(context).primaryColor,
-            ),
-          ),
           ListTile(
+            leading: const Icon(Icons.home),
             title: const Text('Home'),
             onTap: () {
-              Navigator.popUntil(context, (route) => route.isFirst);
+              Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => const HomeScreen()), (route) => false);
             },
           ),
           if (!loggedIn)
             ListTile(
+              leading: const Icon(Icons.login),
               title: const Text('Login'),
               onTap: () {
                 Navigator.push(context, MaterialPageRoute(builder: (context) => const LoginScreen()));
@@ -41,6 +37,7 @@ class CustomDrawer extends StatelessWidget {
             ),
           if (!loggedIn)
             ListTile(
+              leading: const Icon(Icons.app_registration),
               title: const Text('Sign up'),
               onTap: () {
                 Navigator.push(context, MaterialPageRoute(builder: (context) => const RegisterScreen()));
@@ -48,6 +45,7 @@ class CustomDrawer extends StatelessWidget {
             ),
           if (loggedIn)
             ListTile(
+              leading: const Icon(Icons.directions_car),
               title: const Text('My Trips'),
               onTap: () {
                 Navigator.push(context, MaterialPageRoute(builder: (context) => const CreatedTripsScreen()));
@@ -55,6 +53,7 @@ class CustomDrawer extends StatelessWidget {
             ),
           if (loggedIn)
             ListTile(
+              leading: const Icon(Icons.directions_car_outlined),
               title: const Text('Joined Trips'),
               onTap: () {
                 Navigator.push(context, MaterialPageRoute(builder: (context) => const JoinedTripsScreen()));
@@ -69,6 +68,7 @@ class CustomDrawer extends StatelessWidget {
             ),
           if (loggedIn)
             ListTile(
+              leading: Icon(Icons.logout, color: Colors.red.withOpacity(0.7)),
               title: Text('Logout',
                   style: TextStyle(
                       color: Colors.red.withOpacity(0.7),

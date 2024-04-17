@@ -10,6 +10,6 @@ class JwtService {
     final email = values['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress'];
     final role = values['http://schemas.microsoft.com/ws/2008/06/identity/claims/role']
         .contains('Admin') ? UserRole.admin : UserRole.user;
-    return User(id, email, username, role);
+    return User(id, email, username, role, 0.0);
   }
 }

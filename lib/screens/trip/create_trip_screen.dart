@@ -5,7 +5,6 @@ import 'package:flutter_app/providers/city_provider.dart';
 import 'package:flutter_app/providers/user_provider.dart';
 import 'package:flutter_app/screens/base_screen.dart';
 import 'package:flutter_app/widgets/city_picker.dart';
-import 'package:flutter_app/widgets/custom_app_bar.dart';
 import 'package:omni_datetime_picker/omni_datetime_picker.dart';
 import 'package:provider/provider.dart';
 
@@ -13,6 +12,8 @@ import '../../Entities/Trip.dart';
 import '../../services/trip_service.dart';
 
 class CreateTripScreen extends StatefulWidget{
+  const CreateTripScreen({super.key});
+
   @override
   _CreateTripScreenState createState() => _CreateTripScreenState();
 }
@@ -49,7 +50,7 @@ class _CreateTripScreenState extends State<CreateTripScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final CurrencyTextInputFormatter _priceFormatter = CurrencyTextInputFormatter(
+    final CurrencyTextInputFormatter priceFormatter = CurrencyTextInputFormatter(
         locale: 'lt_LT',
         decimalDigits: 0
     );
@@ -142,7 +143,7 @@ class _CreateTripScreenState extends State<CreateTripScreen> {
                                   ),
                                   initialValue: '0 EUR',
                                   keyboardType: TextInputType.number,
-                                  inputFormatters: <TextInputFormatter>[_priceFormatter],
+                                  inputFormatters: <TextInputFormatter>[priceFormatter],
                                   validator: (value) {
                                     if (value == null || value.isEmpty) {
                                       return 'Please enter a price';
@@ -150,8 +151,7 @@ class _CreateTripScreenState extends State<CreateTripScreen> {
                                     return null;
                                   },
                                   onChanged: (value) {
-                                    price = _priceFormatter.getUnformattedValue();
-                                    print(price);
+                                    price = priceFormatter.getUnformattedValue();
                                   }
                               ),
                             ),

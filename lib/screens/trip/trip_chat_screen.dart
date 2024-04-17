@@ -4,7 +4,6 @@ import 'package:flutter_app/entities/message.dart';
 import 'package:flutter_app/screens/base_screen.dart';
 import 'package:flutter_app/services/chat_service.dart';
 import 'package:flutter_app/widgets/chat_bubble.dart';
-import 'package:flutter_app/widgets/custom_app_bar.dart';
 import 'package:provider/provider.dart';
 
 import '../../entities/user.dart';
@@ -107,7 +106,7 @@ class _TripChatScreenState extends State<TripChatScreen> with WidgetsBindingObse
                                   ),
                                 ),
                                 IconButton(
-                                  icon: Icon(Icons.send),
+                                  icon: const Icon(Icons.send),
                                   onPressed: () async {
                                     await chatService.sendMessage(widget.tripId, messageController.text);
                                     messageController.clear();
