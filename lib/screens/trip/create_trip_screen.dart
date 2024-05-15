@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_app/providers/city_provider.dart';
 import 'package:flutter_app/providers/user_provider.dart';
 import 'package:flutter_app/screens/base_screen.dart';
+import 'package:flutter_app/screens/trip/view_trip_screen.dart';
 import 'package:flutter_app/widgets/city_picker.dart';
 import 'package:omni_datetime_picker/omni_datetime_picker.dart';
 import 'package:provider/provider.dart';
@@ -27,10 +28,12 @@ class _CreateTripScreenState extends State<CreateTripScreen> {
   int seats = 1;
   num price = 0;
   String description = '';
+  String dateTimeError = '';
+  String priceError = '';
 
   bool _isLoading = true;
 
-  List<bool> isFieldValid = [false, false, false];
+  List<bool> isFieldValid = [false, false];
 
   @override
   void initState() {
@@ -80,7 +83,8 @@ class _CreateTripScreenState extends State<CreateTripScreen> {
                             onValidated: (isValid){
                               isFieldValid[0] = isValid;
                             },
-                            excludedCity: destinationCity
+                            excludedCity: destinationCity,
+                          validate: true,
                         ),
                         const SizedBox(height: 10),
                         const Align(
@@ -96,7 +100,8 @@ class _CreateTripScreenState extends State<CreateTripScreen> {
                             onValidated: (isValid) {
                               isFieldValid[1] = isValid;
                             },
-                            excludedCity: departureCity
+                            excludedCity: departureCity,
+                          validate: true,
                         ),
                         const SizedBox(height: 10),
                         Row(
@@ -132,12 +137,21 @@ class _CreateTripScreenState extends State<CreateTripScreen> {
                             ),
                           ],
                         ),
+                        if(dateTimeError.isNotEmpty)
+                          Padding(
+                              padding: const EdgeInsets.only(top: 10),
+                              child: Text(dateTimeError, style: const TextStyle(
+                                  color: Colors.red,
+                                  fontSize: 12
+                              ))
+                          ),
                         const SizedBox(height: 10),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Expanded(
                               child: TextFormField(
+                                autovalidateMode: AutovalidateMode.always,
                                   decoration: const InputDecoration(
                                     labelText: 'Price',
                                   ),
@@ -146,15 +160,24 @@ class _CreateTripScreenState extends State<CreateTripScreen> {
                                   inputFormatters: <TextInputFormatter>[priceFormatter],
                                   validator: (value) {
                                     if (value == null || value.isEmpty) {
-                                      return 'Please enter a price';
+                                      priceError = 'Please enter a price';
                                     }
                                     return null;
                                   },
                                   onChanged: (value) {
+                                  setState(() {
                                     price = priceFormatter.getUnformattedValue();
+                                    if(price >= 100){
+                                      priceError = 'Price should be less than 100 EUR';
+                                    } else {
+                                      priceError = '';
+
+                                    }
+                                  });
                                   }
                               ),
                             ),
+                            const SizedBox(width: 10),
                             Expanded(
                               child: DropdownButtonFormField(
                                 decoration: const InputDecoration(
@@ -193,14 +216,27 @@ class _CreateTripScreenState extends State<CreateTripScreen> {
                           },
                         ),
                         const SizedBox(height: 10),
-                        ElevatedButton(
-                            onPressed: isFieldValid.contains(false) ? null : (){
+                        ElevatedButton.icon(
+                            icon: const Icon(Icons.add),
+                            onPressed: (departureCity == '' || destinationCity == '' || isFieldValid.contains(false) || dateTimeError != '' || priceError != '') ? null : (){
                               if(_formKey.currentState!.validate()){
                                 _createTrip();
                               }
                             },
-                            child: const Text('Create Trip')
-                        )
+                            label: const Text('Create Trip'),
+                          style: ButtonStyle(
+                            minimumSize: MaterialStateProperty.all(Size(MediaQuery.of(context).size.width * 0.9, 50)),
+                          )
+                        ),
+                        if(priceError != '')
+                          Padding(
+                              padding: const EdgeInsets.only(top: 10),
+                              child: Text(priceError, style: const TextStyle(
+                                  color: Colors.red,
+                                  fontSize: 12
+                              )
+                              )
+                          )
                       ]
                   )
               ),
@@ -213,19 +249,19 @@ class _CreateTripScreenState extends State<CreateTripScreen> {
     final DateTime? picked = await showOmniDateTimePicker(
       context: context,
       initialDate: selectedDateTime,
-      firstDate: DateTime.now().add(const Duration(hours: 2)),
+      firstDate: DateTime.now().add(const Duration(hours: 1)),
       lastDate: DateTime.now().add(const Duration(days: 365)),
     );
-    if (picked != null && picked != selectedDateTime && picked.isAfter(DateTime.now().add(const Duration(hours: 2)))){
+    if (picked != null && picked != selectedDateTime && picked.isAfter(DateTime.now().add(const Duration(hours: 1)))){
       setState(() {
         selectedDateTime = DateTime(
             picked.year, picked.month, picked.day, picked.hour,
             picked.minute);
-        isFieldValid[2] = true;
+        dateTimeError = '';
       });
-    } else{
+    } else if(!selectedDateTime.isAfter(DateTime.now().add(const Duration(hours: 1)))){
       setState(() {
-        isFieldValid[2] = false;
+        dateTimeError = 'Selected time should be at least 1 hour from now';
       });
     }
   }
@@ -247,13 +283,13 @@ class _CreateTripScreenState extends State<CreateTripScreen> {
     );
 
     try{
-      await TripService().createTrip(trip);
-      Navigator.pop(context, 'refresh');
+      Trip newTrip = await TripService().createTrip(trip);
+      Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => ViewTripScreen(tripId: newTrip.id)));
     } catch (e){
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Failed to create trip')));
     } finally {
       setState(() {
-        isFieldValid = [false, false, false];
+        isFieldValid = [false, false];
         _isLoading = false;
       });
     }

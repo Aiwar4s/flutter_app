@@ -5,13 +5,14 @@ class Trip {
   final int id;
   final String departure;
   final String destination;
-  final String description;
-  final DateTime date;
+  String description;
+  DateTime date;
   final int seats;
   final int seatsTaken;
   final num price;
   User? user;
   List<UserTrip>? userTrips;
+  num driverRating;
 
   Trip({
     required this.id,
@@ -24,6 +25,7 @@ class Trip {
     required this.price,
     this.user,
     this.userTrips,
+    this.driverRating = 0
   });
 
   factory Trip.fromJson(Map<String, dynamic> json) {
@@ -40,6 +42,7 @@ class Trip {
       userTrips: json['userTrips'] != null
           ? List<UserTrip>.from(json['userTrips'].map((trip) => UserTrip.fromJson(trip)))
           : null,
+      driverRating: json['driverRating'] ?? 0,
     );
   }
 
@@ -58,8 +61,6 @@ class Trip {
     return {
       'description': description,
       'date': date.toIso8601String(),
-      'seats': seats,
-      'price': price,
     };
   }
 }

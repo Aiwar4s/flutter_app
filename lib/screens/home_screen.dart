@@ -4,6 +4,7 @@ import 'package:flutter_app/providers/user_provider.dart';
 import 'package:flutter_app/screens/base_screen.dart';
 import 'package:flutter_app/screens/trip/create_trip_screen.dart';
 import 'package:flutter_app/services/trip_service.dart';
+import 'package:flutter_app/widgets/city_picker.dart';
 import 'package:flutter_app/widgets/trip_list_tile.dart';
 import 'package:provider/provider.dart';
 
@@ -16,11 +17,15 @@ class HomeScreen extends StatefulWidget{
 
 class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver{
   List<Trip> trips = [];
+  bool _isLoading = false;
+  String? departure;
+  String? destination;
 
   @override
   void initState(){
     super.initState();
     WidgetsBinding.instance.addObserver(this);
+    _refreshTrips();
   }
 
   @override
@@ -37,9 +42,13 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver{
   }
 
   Future<void> _refreshTrips() async{
-    var newTrips = await TripService().getTrips();
+    setState(() {
+      _isLoading = true;
+    });
+    var newTrips = await TripService().getTrips(departure, destination);
     setState(() {
       trips = newTrips;
+      _isLoading = false;
     });
   }
 
@@ -52,43 +61,63 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver{
         child: Consumer<UserProvider>(
             builder: (context, userProvider, child){
               return Scaffold(
-                floatingActionButton: loggedIn ? FloatingActionButton(
-                  shape: const CircleBorder(),
-                  onPressed: () async{
-                    final result = await Navigator.push(context, MaterialPageRoute(builder: (context) => const CreateTripScreen()));
-                    if(result == 'refresh'){
-                      _refreshTrips();
-                    }
-                  },
-                  child: const Icon(Icons.add),
-                ) : null,
-                body: Padding(
-                    padding: const EdgeInsets.all(5.0),
-                    child: RefreshIndicator(
-                        onRefresh: () async{
-                          await _refreshTrips();
-                        },
-                        child: FutureBuilder<List<Trip>>(
-                            future: TripService().getTrips(),
-                            builder: (context, snapshot){
-                              if(snapshot.connectionState == ConnectionState.waiting){
-                                return const Center(child: CircularProgressIndicator());
-                              } else if(snapshot.hasError){
-                                return const Center(child: Text('Error: Failed to load trips'));
-                              } else {
-                                trips= snapshot.data!;
-                                return ListView.builder(
-                                    itemCount: trips.length,
-                                    itemBuilder: (context, index){
-                                      final trip = trips[index];
-                                      return TripTile(trip: trip, onRefresh: _refreshTrips);
-                                    }
-                                );
-                              }
-                            }
-                        )
-                    )
-                ),
+                  floatingActionButton: loggedIn ? FloatingActionButton(
+                    shape: const CircleBorder(),
+                    onPressed: () async{
+                      Navigator.push(context, MaterialPageRoute(builder: (context) => const CreateTripScreen())).then((_){
+                        _refreshTrips();
+                      });
+                    },
+                    child: const Icon(Icons.add),
+                  ) : null,
+                  body: Column(
+                      children: [
+                        CityPicker(
+                          onCitySelected: (city) {
+                              setState(() {
+                                departure = city;
+                              });
+                              _refreshTrips();
+                            },
+                            onValidated: (isValid) {},
+                            excludedCity: destination ?? '',
+                            type: 'departure',
+                        ),
+                        CityPicker(
+                          onCitySelected: (city) {
+                            setState((){
+                              destination = city;
+                            });
+                            _refreshTrips();
+                          },
+                          onValidated: (isValid) {},
+                          excludedCity: departure ?? '',
+                          type: 'destination',
+                        ),
+                        Expanded(
+                          child: RefreshIndicator(
+                            onRefresh: _refreshTrips,
+                            child: Padding(
+                                padding: const EdgeInsets.all(5.0),
+                                child: _isLoading ?
+                                const Center(child: CircularProgressIndicator()) :
+                                Stack(
+                                  children: [
+                                    ListView.builder(
+                                      itemCount: trips.length,
+                                      itemBuilder: (context, index){
+                                        final trip = trips[index];
+                                        return TripTile(trip: trip, onRefresh: _refreshTrips);
+                                      },
+                                    ),
+                                    if(trips.isEmpty) const Center(child: Text('No trips found'))
+                                  ],
+                                )
+                            ),
+                          ),
+                        ),
+                      ]
+                  )
               );
             }
         )

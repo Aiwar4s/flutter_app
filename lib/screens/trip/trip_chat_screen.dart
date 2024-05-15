@@ -23,6 +23,7 @@ class _TripChatScreenState extends State<TripChatScreen> with WidgetsBindingObse
   final messageController = TextEditingController();
   final ChatService chatService = ChatService();
   final ScrollController _scrollController = ScrollController();
+  String message = '';
 
   @override
   void initState() {
@@ -103,13 +104,21 @@ class _TripChatScreenState extends State<TripChatScreen> with WidgetsBindingObse
                                   child: TextField(
                                     controller: messageController,
                                     decoration: const InputDecoration(hintText: 'Type a message'),
+                                    onChanged: (value) {
+                                      setState(() {
+                                        message = value;
+                                      });
+                                    },
                                   ),
                                 ),
                                 IconButton(
                                   icon: const Icon(Icons.send),
-                                  onPressed: () async {
+                                  onPressed: message.isEmpty ? null : () async {
                                     await chatService.sendMessage(widget.tripId, messageController.text);
                                     messageController.clear();
+                                    setState(() {
+                                      message = '';
+                                    });
                                   },
                                 ),
                               ],

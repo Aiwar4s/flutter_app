@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_app/screens/trip/created_trips_screen.dart';
 import 'package:flutter_app/screens/trip/joined_trips_screen.dart';
+import 'package:flutter_app/screens/user_profile_screen.dart';
 import 'package:provider/provider.dart';
 
+import '../entities/user.dart';
 import '../providers/user_provider.dart';
 import '../screens/auth/login_screen.dart';
 import '../screens/auth/register_screen.dart';
@@ -12,14 +14,23 @@ import '../services/auth/auth_service.dart';
 class CustomDrawer extends StatelessWidget {
   final bool loggedIn;
   final bool isAdmin;
+  final User? user;
 
-  const CustomDrawer({super.key, required this.loggedIn, this.isAdmin = false});
+  const CustomDrawer({super.key, required this.loggedIn, this.isAdmin = false, this.user });
 
   @override
   Widget build(BuildContext context) {
     return Drawer(
       child: ListView(
         children: [
+          if(loggedIn)
+            ListTile(
+              leading: const Icon(Icons.person),
+              title: const Text('Profile'),
+              onTap: () {
+                Navigator.push(context, MaterialPageRoute(builder: (context) => UserProfileScreen(user: user!)));
+              }
+            ),
           ListTile(
             leading: const Icon(Icons.home),
             title: const Text('Home'),
@@ -57,13 +68,6 @@ class CustomDrawer extends StatelessWidget {
               title: const Text('Joined Trips'),
               onTap: () {
                 Navigator.push(context, MaterialPageRoute(builder: (context) => const JoinedTripsScreen()));
-              },
-            ),
-          if (isAdmin)
-            ListTile(
-              title: const Text('Admin Panel'),
-              onTap: () {
-                // TODO: Navigate to admin panel
               },
             ),
           if (loggedIn)

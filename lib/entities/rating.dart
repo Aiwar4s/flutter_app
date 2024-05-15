@@ -6,6 +6,7 @@ class Rating{
   String comment;
   final User user;
   final User ratedUser;
+  final DateTime createdAt;
 
   Rating({
     required this.id,
@@ -13,6 +14,7 @@ class Rating{
     required this.comment,
     required this.user,
     required this.ratedUser,
+    required this.createdAt,
   });
 
   factory Rating.fromJson(Map<String, dynamic> json) {
@@ -22,6 +24,7 @@ class Rating{
       comment: json['comment'],
       user: User.fromJson(json['user']),
       ratedUser: User.fromJson(json['ratedUser']),
+      createdAt: DateTime.parse(json['createdAt']),
     );
   }
 

@@ -7,13 +7,14 @@ import 'package:flutter_app/services/rating_service.dart';
 import 'package:flutter_app/widgets/confirm_delete_dialog.dart';
 import 'package:flutter_app/widgets/seat_picker_dialog.dart';
 import 'package:flutter_app/widgets/user_rating_display.dart';
-import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import '../../entities/rating.dart';
 import '../../entities/user.dart';
 import '../../services/trip_service.dart';
 import '../../widgets/rating_dialog.dart';
+import '../user_profile_screen.dart';
+import 'edit_trip_screen.dart';
 
 class ViewTripScreen extends StatefulWidget {
   final int tripId;
@@ -97,9 +98,30 @@ class _ViewTripScreenState extends State<ViewTripScreen> {
                               Card(
                                   child: ListTile(
                                     leading: const Icon(Icons.person),
-                                    title: Text('Driver: ${trip!.user!.username}'),
+                                    title: Row(
+                                      children: [
+                                        const Text('Driver: '),
+                                        GestureDetector(
+                                          onTap: () {
+                                            Navigator.push(
+                                                context,
+                                                MaterialPageRoute(builder: (context) => UserProfileScreen(user: trip!.user!)
+                                              )
+                                            );
+                                          },
+                                          child: Text(
+                                            trip!.user!.username,
+                                            style: const TextStyle(
+                                              color: Colors.teal,
+                                              fontWeight: FontWeight.w900,
+                                              fontSize: 18
+                                            )
+                                          )
+                                        )
+                                      ]
+                                    ),
                                     subtitle: UserRatingDisplay(user: trip!.user!),
-                                    trailing: loggedIn && _userJoined()
+                                    trailing: loggedIn && _userJoined() && trip!.date.isBefore(DateTime.now())
                                         ? ElevatedButton.icon(
                                       onPressed: () => {
                                         RatingService().getMyRating(trip!.user!.id).then((existingRating) {
@@ -139,7 +161,22 @@ class _ViewTripScreenState extends State<ViewTripScreen> {
                                         ...trip!.userTrips!.map((userTrip){
                                           return ListTile(
                                             leading: const Icon(Icons.person),
-                                            title: Text(userTrip.user.username),
+                                            title: GestureDetector(
+                                                onTap: () {
+                                                  Navigator.push(
+                                                      context,
+                                                      MaterialPageRoute(builder: (context) => UserProfileScreen(user: userTrip.user))
+                                                  );
+                                                },
+                                                child: Text(
+                                                    userTrip.user.username,
+                                                    style: const TextStyle(
+                                                        color: Colors.teal,
+                                                        fontWeight: FontWeight.w900,
+                                                        fontSize: 18
+                                                    )
+                                                )
+                                            ),
                                             subtitle: Column(
                                                 crossAxisAlignment: CrossAxisAlignment.start,
                                                 children: [
@@ -147,7 +184,7 @@ class _ViewTripScreenState extends State<ViewTripScreen> {
                                                   UserRatingDisplay(user: userTrip.user),
                                                 ]
                                             ),
-                                            trailing: loggedIn && _userCreated()
+                                            trailing: loggedIn && _userCreated() && trip!.date.isBefore(DateTime.now())
                                                 ? ElevatedButton.icon(
                                               onPressed: () => {
                                                 RatingService().getMyRating(userTrip.user.id).then((existingRating) {
@@ -201,7 +238,7 @@ class _ViewTripScreenState extends State<ViewTripScreen> {
                             label: const Text('Join Trip'),
                           ),
                         ),
-                      if(loggedIn && trip!.userTrips!.any((userTrip) => userTrip.user.id == user.id))
+                      if(loggedIn && trip!.userTrips!.any((userTrip) => userTrip.user.id == user.id) && trip!.date.isAfter(DateTime.now()))
                         SizedBox(
                           width: buttonWidth,
                           child: ElevatedButton.icon(
@@ -215,18 +252,26 @@ class _ViewTripScreenState extends State<ViewTripScreen> {
                             label: const Text('Leave Trip'),
                           ),
                         ),
-                      if(loggedIn && trip!.user!.id == user.id)
+                      if(loggedIn && trip!.user!.id == user.id && trip!.date.isAfter(DateTime.now()))
                         SizedBox(
                           width: buttonWidth,
                           child: ElevatedButton.icon(
-                            onPressed: (){
-                              // TODO: Implement edit trip
+                            onPressed: () async{
+                              final updatedTrip = await Navigator.push(
+                                  context,
+                                  MaterialPageRoute(builder: (context) => EditTripScreen(trip: trip!))
+                              );
+                              if(updatedTrip != null){
+                                setState(() {
+                                  trip = updatedTrip;
+                                });
+                              }
                             },
                             icon: const Icon(Icons.edit),
                             label: const Text('Edit Trip'),
                           ),
                         ),
-                      if(loggedIn && (trip!.user!.id == user.id || user.isAdmin))
+                      if(loggedIn && (trip!.user!.id == user.id || user.isAdmin) && trip!.date.isAfter(DateTime.now()))
                         SizedBox(
                             width: buttonWidth,
                             child: ElevatedButton.icon(
@@ -335,7 +380,8 @@ class _ViewTripScreenState extends State<ViewTripScreen> {
         stars: stars,
         comment: comment,
         user: Provider.of<UserProvider>(context, listen: false).user!,
-        ratedUser: ratedUser
+        ratedUser: ratedUser,
+        createdAt: DateTime.now()
     );
     RatingService().createRating(ratedUser.id, rating).then((value) {
       _loadTrip();

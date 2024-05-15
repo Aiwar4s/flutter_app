@@ -70,7 +70,7 @@ class _CreatedTripsScreenState extends State<CreatedTripsScreen> with WidgetsBin
                                     itemCount: trips.length,
                                     itemBuilder: (context, index){
                                       final trip = trips[index];
-                                      return TripTile(trip: trip, onRefresh: _refreshTrips);
+                                      return TripTile(trip: trip, onRefresh: _refreshTrips, showRating: false);
                                     }
                                 );
                               }

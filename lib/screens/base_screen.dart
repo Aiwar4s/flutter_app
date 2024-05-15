@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../entities/user.dart';
 import '../providers/user_provider.dart';
 import '../widgets/custom_app_bar.dart';
 import '../widgets/custom_drawer.dart';
@@ -15,10 +16,11 @@ class BaseScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final bool isAdmin = loggedIn ? Provider.of<UserProvider>(context).user!.isAdmin : false;
+    User? user = loggedIn ? Provider.of<UserProvider>(context).user : null;
 
     return Scaffold(
       appBar: CustomAppBar(title: title, loggedIn: loggedIn),
-      drawer: CustomDrawer(loggedIn: loggedIn, isAdmin: isAdmin),
+      drawer: CustomDrawer(loggedIn: loggedIn, isAdmin: isAdmin, user: user),
       drawerEdgeDragWidth: MediaQuery.of(context).size.width * 0.75,
       body: child,
     );

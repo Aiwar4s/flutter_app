@@ -9,13 +9,13 @@ import 'auth/secure_storage_service.dart';
 class TripService {
   Map<String, String> headers = {'Content-Type': 'application/json; charset=UTF-8'};
 
-  Future<List<Trip>> getTrips() async{
+  Future<List<Trip>> getTrips(String? departure, String? destination) async{
     if(await AuthService.isLoggedIn()){
       AuthService().refreshToken();
       final accessToken = await SecureStorageService().readAccessToken();
       headers['Authorization'] = 'Bearer $accessToken';
     }
-    final response = await http.get(Uri.parse(ApiConstants.trips), headers: headers);
+    final response = await http.get(Uri.parse('${ApiConstants.trips}?departure=${departure ?? ''}&destination=${destination ?? ''}'), headers: headers);
     if(response.statusCode == 200){
       List<dynamic> body = jsonDecode(response.body);
       return body.map((trip) => Trip.fromJson(trip)).toList();
@@ -108,6 +108,25 @@ class TripService {
     }
     else{
       throw Exception("Failed to join trip");
+    }
+  }
+
+  Future<Trip> editTrip(Trip trip) async {
+    AuthService().refreshToken();
+    final accessToken = await SecureStorageService().readAccessToken();
+    final response = await http.put(
+      Uri.parse('${ApiConstants.trips}/${trip.id}'),
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+        'Authorization': 'Bearer $accessToken'
+      },
+      body: jsonEncode(trip.toEditTripJson())
+    );
+    if(response.statusCode == 200){
+      return Trip.fromJson(jsonDecode(response.body));
+    }
+    else{
+      throw Exception("Failed to edit trip");
     }
   }
 

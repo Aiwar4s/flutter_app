@@ -26,7 +26,7 @@ void showRatingDialog(BuildContext context, String userType, Function(int, Strin
                     direction: Axis.horizontal,
                     allowHalfRating: false,
                     itemCount: 5,
-                    itemPadding: EdgeInsets.symmetric(horizontal: 4.0),
+                    itemPadding: const EdgeInsets.symmetric(horizontal: 4.0),
                     itemBuilder: (context, _) => const Icon(
                       Icons.star,
                       color: Colors.teal,
@@ -54,7 +54,6 @@ void showRatingDialog(BuildContext context, String userType, Function(int, Strin
               children: <Widget>[
                 if(existingRating != null)
                   TextButton(
-                    child: const Text('Delete'),
                     style: TextButton.styleFrom(
                       foregroundColor: Colors.red.withOpacity(0.7),
                     ),
@@ -62,6 +61,7 @@ void showRatingDialog(BuildContext context, String userType, Function(int, Strin
                       onDelete();
                       Navigator.of(context).pop();
                     },
+                    child: const Text('Delete'),
                   ),
                 Row(
                   mainAxisSize: MainAxisSize.min,

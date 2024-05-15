@@ -8,8 +8,10 @@ class CityPicker extends StatefulWidget{
   final Function(String) onCitySelected;
   final Function(bool) onValidated;
   final String excludedCity;
+  final bool validate;
+  final String type;
 
-  const CityPicker({super.key, required this.onCitySelected, required this.onValidated, required this.excludedCity});
+  const CityPicker({super.key, required this.onCitySelected, required this.onValidated, required this.excludedCity, this.validate = false, this.type = ''});
 
   @override
   _CityPickerState createState() => _CityPickerState();
@@ -61,7 +63,7 @@ class _CityPickerState extends State<CityPicker>{
                 Align(
                     alignment: Alignment.centerLeft,
                     child: Text(
-                        selectedCity.isEmpty ? 'Select City' : selectedCity,
+                        selectedCity.isEmpty ? 'Select ${widget.type.isEmpty ? '' : '${widget.type} '}City' : selectedCity,
                         style: TextStyle(color: selectedCity.isEmpty ? Colors.grey : Colors.black)
                     )
                 ),
@@ -69,7 +71,8 @@ class _CityPickerState extends State<CityPicker>{
               ],
             ),
           ),
-          errorText != null ? Text(errorText!, style: const TextStyle(color: Colors.red)) : const SizedBox.shrink(),
+          if(widget.validate && errorText != null)
+            Text(errorText!, style: const TextStyle(color: Colors.red))
         ]
       ),
     );
